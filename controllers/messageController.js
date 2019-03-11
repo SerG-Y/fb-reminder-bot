@@ -99,7 +99,7 @@ const processDialogflowResponse = (userId, result) => {
         switch (result.action) {
             case 'reminders.add': {
                 const fields = result.parameters.fields;
-                const date = DateTime.fromISO(fields['date-time'].stringValue);
+                const date = DateTime.fromISO(getDateTimeField(fields));
                 const name = fields['name'].stringValue;
 
                 if (date.isValid) {
@@ -129,6 +129,21 @@ const processDialogflowResponse = (userId, result) => {
         }
     } else {
         return sendTextMessage(userId, result.fulfillmentText);
+    }
+}
+
+const getDateTimeField = (fields) => {
+    const dateTimeField = fields['date-time'];
+
+    switch (dateTimeField.kind) {
+        case 'stringValue':
+            return fields['date-time'].stringValue;
+
+        case 'structValue':
+            return fields['date-time'].structValue.fields.date_time.stringValue
+
+        default:
+            return null;
     }
 }
 
